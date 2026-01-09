@@ -253,6 +253,81 @@ body {
     margin-top: 3rem;
 }
 
+/* Download Section */
+.download-section {
+    margin: 3rem 0;
+}
+
+.download-card {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    color: var(--white);
+    padding: 3rem 2rem;
+    border-radius: 1rem;
+    text-align: center;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    margin: 2rem 0;
+}
+
+.download-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.download-card h3 {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+    color: var(--white);
+}
+
+.download-card > p {
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 2rem;
+    font-size: 1.125rem;
+}
+
+.btn-download {
+    background-color: var(--white);
+    color: var(--primary-color);
+    padding: 1rem 2.5rem;
+    font-size: 1.125rem;
+    font-weight: 700;
+    display: inline-block;
+    margin: 1rem 0;
+    transition: all 0.3s;
+}
+
+.btn-download:hover {
+    background-color: var(--bg-light);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.download-note {
+    margin-top: 1.5rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+}
+
+.info-box {
+    background-color: var(--bg-light);
+    border-left: 4px solid var(--primary-color);
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    margin: 2rem 0;
+}
+
+.info-box p {
+    margin-bottom: 1rem;
+}
+
+.info-box p:last-child {
+    margin-bottom: 0;
+}
+
+.info-box strong {
+    color: var(--text-color);
+}
+
 /* Footer */
 footer {
     background-color: var(--text-color);

@@ -1,0 +1,40 @@
+/* Shared styles for ehr1.cloud site-root pages (index, certified-backup, etc.) */
+body {
+  font-family: system-ui, "Segoe UI", Roboto, sans-serif;
+  margin: 0;
+  padding: 2rem;
+  line-height: 1.6;
+  color: #1a2332;
+  background: #f4f6fa;
+}
+
+main {
+  max-width: 40rem;
+  margin: 0 auto;
+  background: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+h1 {
+  margin-top: 0;
+  font-size: 1.35rem;
+}
+
+a {
+  color: #0d47a1;
+}
+
+.muted {
+  color: #5c6b7a;
+  font-size: 0.95rem;
+}
+
+.callout {
+  border-left: 4px solid #0d47a1;
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+  background: #f0f4fb;
+  border-radius: 0 8px 8px 0;
+}

@@ -1,0 +1,15 @@
+Apply DDL in this order (after CREATE DATABASE ehr1 ...):
+  00_meta.sql
+  01_core_npi_provider.sql
+  02_core_endpoint.sql
+  03_core_practice_location.sql
+  04_core_other_name.sql
+  05_core_supplemental.sql
+  06_core_npi_relationship.sql
+  99_seed_test_data.sql
+  100_relationship_seed.sql
+
+Example:
+  mysql -u USER -p ehr1 < 00_meta.sql
+  ... (repeat) ...
+  mysql -u USER -p ehr1 < 99_seed_test_data.sql

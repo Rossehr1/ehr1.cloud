@@ -1,0 +1,224 @@
+LEGACY — Hostinger shared hosting only (obsolete for EHR1 production)
+=====================================================================
+
+**Production for this project is only on the VPS:** **`ehr1.cloud`** DNS → VPS; PHP + MySQL
+on that server. SSH/SCP targets live in **`deploy/deploy-paths.json`**. After cutover,
+**delete** EHR1 files and MySQL DBs from Hostinger and **do not** use **`ross1.me`** for
+this app. See **`deploy/ehr1-cloud-app/README-DEPLOY.txt`**.
+
+The rest of this file is **historical** troubleshooting from when **`ehr1.cloud`** was mis-bound
+in hPanel (404 / placeholder). Skip it if you are not cleaning an old Hostinger account.
+
+---
+
+EHR1.cloud not loading files (404 / Hostinger placeholder) — fix in hPanel
+===========================================================================
+
+**Canonical app URL (today):** **`https://ehr1.cloud/ehr1-data/`** on the **VPS**. Legacy
+note: the **ehr1.cloud** profile in **`deploy/deploy-paths.json`** targets paths **on the
+VPS** (not Hostinger). **MySQL** for this project is on the **VPS**
+only. If you still see a
+Hostinger placeholder **404**, you are hitting **old DNS** or a **leftover** Hostinger
+site — fix **DNS** to the **VPS** and remove stale Hostinger copies per the deploy README.
+
+What we know from the server
+----------------------------
+- **Repo:** SSH/SCP defaults for deploy scripts are in **deploy/deploy-paths.json**
+  (`RemotePublicHtml`, `RemoteAppDir`, host, port, user). Change that file if the
+  on-disk paths differ after a migration.
+- Your PHP app and static pages are on disk at:
+    /home/USER/domains/ehr1.cloud/public_html/
+  e.g. index.html, certified-backup.html, ehr1-data/index.php, etc.
+- HTTP requests to http://ehr1.cloud/ still return Hostinger’s generic 404 page
+  (Angular-style HTML, Last-Modified Apr 2025), not your files.
+- That means the domain’s **virtual host is not using that folder** as its
+  document root (domain not fully “wired” to this hosting site), or the site
+  is still on a parking/default configuration. **Uploads and SSH cannot fix
+  that** — hPanel must attach the domain to the correct website.
+
+Public DNS must actually point at this hosting (A record)
+----------------------------------------------------------
+If **nslookup** or **Resolve-DnsName** shows **no IPv4 address** for
+`ehr1.cloud` (only SOA / parking nameservers, or “No such host is known”),
+browsers cannot reach the server at all — **no deploy fix** until DNS works.
+
+In **hPanel** → **Domains** → **ehr1.cloud** → **DNS / DNS Zone**, ensure an
+**A** record for `@` (and **www** if you use it) points to the **IPv4 shown for
+this website / hosting** (often the same address you use for SSH). After saving,
+wait for propagation, then confirm: `nslookup ehr1.cloud` prints an **Address**.
+
+Vhost check (bypasses DNS, uses server IP)
+------------------------------------------
+When DNS is wrong, you can still test the web server config from a PC:
+
+  curl -sSI -H "Host: ehr1.cloud" "http://SERVER_IP/ehr1-data/index.php"
+
+Replace **SERVER_IP** with the hosting IPv4 from hPanel (example: the IP you use
+with SSH port 65002). **200** and PHP/HTML from your app = vhost + files OK;
+**404** with a Hostinger HTML stub = domain is **not** mapped to
+`domains/ehr1.cloud/public_html` yet (hPanel website assignment, per below).
+
+Compare with a domain you know works on the same plan (example **ehr1.com**):
+
+  curl -sSI -H "Host: ehr1.com" "http://SERVER_IP/"
+
+If **ehr1.com** is **200** but **ehr1.cloud** is **404** for paths under the same
+IP, **ehr1.cloud** is still on the wrong website / builder / parking vhost even
+if the browser “home page” looks OK (cache, preview URL, or a non-file source).
+Purge **LiteSpeed / CDN** cache for **ehr1.cloud**, then re-test **/ehr1-data/index.php**.
+
+**Landing works but `/ehr1-data/` does not:** open `https://ehr1.cloud/ehr1-data/ping.txt` in a browser (deploy creates a one-line `ping.txt`). If that is **404** but **index.html** at the site root loads, the HTTP server is **not** serving the `ehr1-data` folder for that hostname — fix website root in hPanel, or create a subdomain (e.g. `app.ehr1.cloud`) with document root set to `domains/ehr1.cloud/public_html/ehr1-data` and set `http_base_path` in `config.local.php` to empty string for that host.
+
+After a server OS reinstall (Hostinger)
+---------------------------------------
+The **filesystem path** is often preserved or restored, but the **web server
+config** is rebuilt. You may see your files in File Manager yet still get Hostinger’s
+generic 404 / wrong page. That is **normal** until hPanel reconnects the hostname
+to this directory:
+
+  File on disk:  .../domains/ehr1.cloud/public_html/...
+
+Use **Websites** → **ehr1.cloud** → ensure this is the active site / correct root.
+If Hostinger shows **“Fix file ownership”** or **“Repair”** for the website, run that
+after the website is assigned.
+
+What the browser is actually hitting (after OS reinstall)
+---------------------------------------------------------
+If HTTP/HTTPS shows **“This Page Does Not Exist”** with
+**/htdocs_error/page_not_found.svg** (Hostinger/Gator-style template), the
+domain is **not** serving your **Web Hosting** files under
+`domains/ehr1.cloud/public_html`. It is often still attached to an empty
+**Website Builder** / placeholder property, or another product, while your PHP
+files live on the **shared hosting** account (SSH/SFTP).
+
+**Fix pattern:** In hPanel, move/attach **ehr1.cloud** to the **same hosting
+plan** where you SSH as `u660126262` (Business/cPanel-style “Websites” /
+**Files** tree). Remove or disconnect the domain from the standalone **Website
+Builder** site if it has no content, **or** add **Web Hosting** as the target for
+that domain (wording varies by panel version).
+
+What to do in Hostinger (order matters)
+---------------------------------------
+1) **hPanel** → **Websites** (or **Hosting** → **Manage** your plan).
+
+2) Find **ehr1.cloud**:
+   - If it appears as **“Website”**: open **Manage** → **Advanced** or **File manager**
+     path — it must be the site whose root is
+     `domains/ehr1.cloud/public_html` (sometimes shown as `public_html` for
+     that domain only).
+   - If **ehr1.cloud** is only under **Domains** but **not** under **Websites**:
+     use **Create website** / **Add website** and choose **ehr1.cloud**, then
+     set the root to **`public_html`** for that domain (Hostinger will map it
+     to `domains/ehr1.cloud/public_html` on disk).
+
+3) If the domain was **transferred** or **re-added** recently: remove any
+   **“Parked”** / **redirect-only** setup and assign it to **this** hosting
+   account’s site that contains your files.
+
+4) **SSL**: **Websites** → **ehr1.cloud** → **SSL** → install **Let’s Encrypt**
+   (HTTPS was failing with TLS errors until the cert matches the domain).
+
+5) **Purge cache**: **LiteSpeed / cache** for the site, then test:
+   - https://ehr1.cloud/
+   - https://ehr1.cloud/ehr1-data/index.php
+
+Database app note
+-----------------
+- Production config is expected at:
+  domains/ehr1.cloud/public_html/ehr1-data/includes/config.local.php
+- **`db.*` in that file** should point at the **authoritative** database (usually **MySQL on the VPS**, e.g. host **177.7.52.88** and database **`ehr1_data`** (or the name you created on the VPS) — see **`ehr1-cloud-app/README-DEPLOY.txt`** *MySQL on VPS*). The Linux hosting username below is **only** for SSH/FTP paths, not the MySQL database name.
+- Deploy scripts **do not** overwrite `config.local.php` by default.
+
+Copy/paste for live chat / ticket
+-----------------------------------
+Hosting username: u660126262
+Domain: ehr1.cloud
+On-disk web root (FTP/SSH): domains/ehr1.cloud/public_html/
+App: ehr1-data/index.php and includes/config.local.php exist there.
+Problem (current): **DNS is correct** — `nslookup -type=A ehr1.cloud 8.8.8.8` returns
+**92.112.189.73** (and **www** matches). **SCP/SSH** confirms files exist on disk:
+`domains/ehr1.cloud/public_html/index.html`, `ehr1-data/ping.txt` (3 bytes),
+`ehr1-data/index.php`, etc. Yet **HTTP** to the same IP with **Host: ehr1.cloud** gives
+**404** for `/ehr1-data/ping.txt` (Hostinger stub HTML, **Last-Modified ~Apr 2025**)
+and **403** for `/`. So **LiteSpeed is not using `domains/ehr1.cloud/public_html`**
+as the document root for hostname **ehr1.cloud**. Please attach **ehr1.cloud** to this
+**web hosting** site (**SSH user u660126262**) so the vhost maps to that folder, or
+remove **Website Builder** / placeholder binding for this hostname. Then **Let’s Encrypt**
+for **ehr1.cloud** and purge **LiteSpeed** cache.
+
+Workaround if apex cannot be fixed quickly: create **subdomain** (e.g. **app.ehr1.cloud**)
+with document root **`domains/ehr1.cloud/public_html/ehr1-data`**, SSL for that host,
+and set **`http_base_path`** to **`''`** in `config.local.php`; app URLs are then
+**https://app.ehr1.cloud/index.php** (no `/ehr1-data` prefix).
+
+Objective checks (run from your PC — hPanel can look “green” while these fail)
+------------------------------------------------------------------------------
+**A) Public DNS must return an IPv4 for the name you put in the browser.**
+
+  nslookup -type=A ehr1.cloud 8.8.8.8
+
+You should see one or more **Address:** lines with the hosting IP. If you only get
+**Name: ehr1.cloud** and **no Address**, or **www** is “Non-existent domain”, the
+zone is still **parking / incomplete** — fix the **A** (and **CNAME www** if used)
+in hPanel (or at the registrar if nameservers point elsewhere). Until this passes,
+many networks will never reach the server.
+
+**B) The web server must map Host `ehr1.cloud` to `domains/ehr1.cloud/public_html`.**
+
+Replace SERVER_IP with the IPv4 from hPanel for this hosting plan:
+
+  curl -sSI -H "Host: ehr1.cloud" "http://SERVER_IP/ehr1-data/ping.txt"
+
+**200** and body `ok` = vhost + path OK. **404** + Hostinger stub HTML = hostname
+still not attached to that folder (wrong website product, builder, or default vhost).
+
+**C) Same IP, working domain vs broken domain (sanity check):**
+
+  curl -sSI -H "Host: ehr1.com" "http://SERVER_IP/"
+  curl -sSI -H "Host: ehr1.cloud" "http://SERVER_IP/ehr1-data/ping.txt"
+
+If **ehr1.com** is **200** but **ehr1.cloud** is **404**, the problem is **only**
+**ehr1.cloud**’s website/DNS binding — not missing PHP files (those run fine via CLI
+on the server).
+
+**D) DNS points to one IP but TLS says “unrecognized name”**
+
+If **nslookup** shows **ehr1.cloud** → (for example) **177.7.52.88**, but
+`curl -v https://ehr1.cloud/anything` fails with **tlsv1 unrecognized name** (or
+**Empty reply** on port 80), the **A record is reaching Hostinger’s edge**, but the
+**website/SSL for that hostname is not active** on that node yet. Fix: **Websites →
+ehr1.cloud** fully created on **web hosting**, then **SSL → install Let’s Encrypt**
+(and wait a few minutes). Until the cert and vhost name exist, HTTPS cannot work even
+when DNS is “correct.”
+
+**E) DNS A record vs SSH host**
+
+In **deploy/deploy-paths.json**, `RemoteHost` (SSH) and `PublicDnsARecordIPv4`
+are both **92.112.189.73** for this project: set the DNS **A** records for **@** and
+**www** to that IPv4 when hPanel shows it as this website’s address (Hostinger sometimes
+issued a different regional edge IP first — if **curl** with that IP gave TLS
+“unrecognized name,” aligning DNS with **92.112.189.73** matches the node you use for
+SCP/SSH). After propagation, re-run **Let’s Encrypt** for **ehr1.cloud** if HTTPS
+still fails.
+
+Your **A record** can differ from **SSH** on some plans; what matters is the **IP hPanel
+lists for this site** matches public **A** records, and **website + SSL for ehr1.cloud**
+are active on that node. Files stay under **domains/ehr1.cloud/public_html/** regardless.
+
+Verified failure after successful deploy (2026-05)
+----------------------------------------------------
+Symptoms: **Deploy scripts succeed** (files visible in File Manager / SSH), **DNS A**
+points at **92.112.189.73**, but **https://ehr1.cloud/ehr1-data/ping.txt** or **index.php**
+still show **404** / Hostinger placeholder.
+
+**Proof from any PC:**
+
+  nslookup -type=A ehr1.cloud 8.8.8.8
+  curl -sSI -H "Host: ehr1.cloud" "http://92.112.189.73/ehr1-data/ping.txt"
+
+If the first shows **Address: 92.112.189.73** and the second is **HTTP/1.1 404** with
+**Last-Modified: Tue, 22 Apr 2025** (stub page), the web server **ignores** your on-disk
+`public_html` for that hostname. **No further upload or repo change fixes it** — only
+hPanel / Hostinger support correcting **website assignment** (or use the **subdomain**
+workaround in the copy/paste block above).
+

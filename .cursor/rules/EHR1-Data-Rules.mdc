@@ -1,0 +1,40 @@
+---
+description: EHR1 Data project — basic rules (narrow scope; expand later)
+alwaysApply: true
+---
+
+# EHR1 Data Rules
+
+**Scope:** Keep rules **small and narrow** for now. Add more only when the project needs them. **`EHR1-Full-Data.md`** is the plan (phases, inventory, open decisions); it includes **recommended operating rules** that match this file—keep them in sync when you change process or scope.
+
+---
+
+## Basics (start here)
+
+1. **Plan alignment:** If you change direction on database design, loads, or major structure, **update `EHR1-Full-Data.md`** so the plan stays true.
+2. **Minimal change:** Touch only what the task needs—no extra refactors or new docs unless asked.
+3. **Raw data:** Do **not** edit files under `Data Originals/` in place. Use exports, staging in the database, or new copies—never “fix” a CMS dump by hand in that folder.
+4. **Identifiers:** **NPI** and **ZIP/postal codes** are **text** (not numbers), so leading zeros and joins stay correct.
+5. **Names:** Files and modules are **short, plain, and descriptive**—someone should guess the purpose from the name (e.g. `load_npi_staging.py`, not `script1.py`). Top-level project docs use the **`EHR1-<Topic>.md`** pattern where it fits.
+6. **Code size:** Hand-written source files stay **≤ 500 lines**; split into more files if something grows past that.
+7. **Documentation:** New or changed code gets a **brief module note** and enough **comments/docstrings** on public pieces that the next reader knows inputs, outputs, and anything non-obvious.
+8. **Secrets:** Never commit **passwords**, **DB credentials**, or **API keys** in this repo. Use **Hostinger/hPanel-only** settings and local untracked env files (e.g. `.env` gitignored); templates may use placeholders only.
+9. **Master data:** Follow **`EHR1-Full-Data.md` → Master dataset** — authoritative files are **`Data Originals/` minus `EP PAID Complete - Final 4-10-26.xlsx`**; EP PAID is supplemental, not the freshness baseline.
+10. **Deploy then verify:** After **any deploy** to the live app (e.g. `ehr1-cloud-app`), **test** the changed surface (HTTP fetch, key route, or minimal scripted check). If something fails, **fix it automatically** using the **simplest** change that restores behavior—no scope creep, **keep the app small** (prefer tiny diffs over new layers).
+11. **Merges:** Follow **`EHR1-Full-Data.md` → Data merge rules (master dataset)** for precedence, join keys, duplicate handling, and batch sequencing.
+12. **Compact app/data:** Keep the application and database **compact and concise**. Do not keep dead code, disabled feature files, unused generated artifacts, duplicate rows, empty-only columns, or bulky UI/data structures that waste space or slow the app. Preserve real source information, but remove waste.
+13. **Local working folder (Windows):** Use **`C:\Z-Data\Data Project`** for Git, deploy scripts, and Cursor—not Google Drive alone. See **`EHR1-Full-Data.md`** (Local working folder).
+
+---
+
+## When you add ETL or a database
+
+- Prefer **chunked** reads for large CSVs (do not load multi‑GB files fully into memory).
+- **Join on NPI** across NPPES-style tables unless a supplemental file uses another key—then **document** the join in `EHR1-Full-Data.md` first.
+- **Uncertain call?** Record it in **`EHR1-Full-Data.md`** (open decisions) instead of guessing.
+
+---
+
+## Compliance
+
+Respect **internal policy** for access and handling of data (including supplemental lists that may be more sensitive than public NPPES files).

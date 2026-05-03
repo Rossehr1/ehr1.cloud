@@ -1,0 +1,14 @@
+{
+  "RemoteHost": "203.0.113.10",
+  "PublicDnsARecordIPv4": "203.0.113.10",
+  "Port": 22,
+  "User": "root",
+  "ActiveDeployProfile": "ehr1.cloud",
+  "Profiles": {
+    "ehr1.cloud": {
+      "Domain": "ehr1.cloud",
+      "RemotePublicHtml": "/var/www/ehr1.cloud/public_html",
+      "RemoteAppDir": "/var/www/ehr1.cloud/public_html/ehr1-data"
+    }
+  }
+}

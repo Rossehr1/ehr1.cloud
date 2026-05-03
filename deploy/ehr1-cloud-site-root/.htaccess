@@ -1,0 +1,15 @@
+# Served from domains/ehr1.cloud/public_html (site root, above ehr1-data).
+# DirectoryIndex helps once hPanel maps this folder to ehr1.cloud.
+
+DirectoryIndex index.html index.htm index.php default.php
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # Some stacks 404 /ehr1-data without a trailing slash; normalize to the directory.
+  RewriteRule ^ehr1-data$ /ehr1-data/ [R=301,L]
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+</IfModule>

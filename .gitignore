@@ -1,0 +1,28 @@
+# Local production config (copy from config.example.php)
+deploy/ehr1-cloud-app/includes/config.local.php
+
+# Env-style secrets
+.env
+.env.local
+deploy/.env.deploy
+
+# Large raw CMS/NPPES extracts (keep locally; see EHR1-Full-Data.md)
+Data Originals/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+*.egg-info/
+# Python packaging at repo root only (do not blanket-ignore dist/build under app paths)
+/dist/
+/build/
+
+# OS / editor noise
+Thumbs.db
+Desktop.ini
+.DS_Store
+*~
+~$*

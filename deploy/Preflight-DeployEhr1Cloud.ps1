@@ -45,8 +45,8 @@ if (-not (Test-Path -LiteralPath $IdentityFile)) {
 $target = "${sshUser}@${sshHost}"
 $portStr = [string]$sshPort
 
-# Bash test uses double-quoted paths so spaces would work; deploy paths are fixed POSIX paths.
-$remote = "echo REMOTE_OK; if [ -d `"$pub`" ]; then echo DIR_OK_PUB; else echo DIR_MISSING_PUB; fi; if [ -d `"$app`" ]; then echo DIR_OK_APP; else echo DIR_MISSING_APP; fi; if [ -f `"$app/includes/config.local.php`" ]; then echo CONFIG_LOCAL_PRESENT; else echo CONFIG_LOCAL_ABSENT; fi; if command -v php >/dev/null 2>&1; then php -v | head -n 1; else echo PHP_NOT_IN_PATH; fi"
+# Bash: optional curl (nginx must answer on 127.0.0.1:80 for this vhost via Host header).
+$remote = "echo REMOTE_OK; if [ -d `"$pub`" ]; then echo DIR_OK_PUB; else echo DIR_MISSING_PUB; fi; if [ -d `"$app`" ]; then echo DIR_OK_APP; else echo DIR_MISSING_APP; fi; if [ -f `"$app/includes/config.local.php`" ]; then echo CONFIG_LOCAL_PRESENT; else echo CONFIG_LOCAL_ABSENT; fi; if command -v php >/dev/null 2>&1; then php -v | head -n 1; else echo PHP_NOT_IN_PATH; fi; if command -v curl >/dev/null 2>&1; then curl -sS --max-time 3 -f -H 'Host: $($dom)' http://127.0.0.1/ >/dev/null && echo HTTP_HOME_OK || echo HTTP_HOME_FAIL; curl -sS --max-time 3 -f -H 'Host: $($dom)' http://127.0.0.1/ehr1-data/ping.txt >/dev/null && echo HTTP_APP_PING_OK || echo HTTP_APP_PING_FAIL; else echo CURL_SKIP; fi"
 
 Write-Host "--- SSH BatchMode probe ---"
 & ssh @(

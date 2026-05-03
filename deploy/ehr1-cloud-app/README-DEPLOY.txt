@@ -1,3 +1,23 @@
+EHR1 Data — deploy (VPS nginx + Hostinger)
+==========================================
+
+VPS (ehr1.cloud on your own server, nginx + php-fpm)
+----------------------------------------------------
+- Paths come from **deploy/deploy-paths.json** (e.g. `public_html` + `public_html/ehr1-data`).
+- One-shot from repo root:
+    powershell -ExecutionPolicy Bypass -File .\deploy\Deploy-Ehr1ToVps.ps1 -SkipPrepare
+  (`-SkipPrepare` skips remote `mkdir`/`chown` if layouts already exist.)
+- **Hostinger-style VPS** (default nginx returns 444 for unknown hosts): deploy files, then **once** enable the vhost:
+    powershell -ExecutionPolicy Bypass -File .\deploy\Apply-Ehr1CloudNginxVhost.ps1
+  (Uses **deploy/nginx-ehr1.cloud-dedicated.conf** so `ehr1.cloud` serves `/var/www/ehr1.cloud/public_html`.)
+- **Nginx does not read `.htaccess`.** If `/ehr1-data` (no trailing slash) 404s, the dedicated conf includes the redirect to `/ehr1-data/`. Bare Debian bootstrap: **deploy/vps-bootstrap-debian.sh** also adds that block.
+- Dry-run: **deploy/Preflight-DeployEhr1Cloud.ps1**
+- Site root (homepage, `/assets/*`) is **deploy/ehr1-cloud-site-root/**; the PHP app is **deploy/ehr1-cloud-app/**.
+
+Hostinger / hPanel (legacy quick path)
+--------------------------------------
+The steps below assume Hostinger paths unless you use the VPS flow above.
+
 EHR1 Data — deploy to ehr1.cloud (Hostinger Business, PHP + MySQL)
 ================================================================
 

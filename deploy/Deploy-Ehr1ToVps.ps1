@@ -117,4 +117,6 @@ if (-not $SkipApp) {
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 }
 
-Write-Host "`nDone. Next: ensure config.local.php exists on VPS; run php tools/install_schema.php; point ehr1.cloud DNS at $($cfg.PublicDnsARecordIPv4).`n"
+Write-Host "`nDone. Next: ensure config.local.php exists on VPS; run php tools/install_schema.php; point ehr1.cloud DNS at $($cfg.PublicDnsARecordIPv4)."
+Write-Host "If the host uses a catch-all nginx that drops unknown Host headers (e.g. some panel VPS), run once:"
+Write-Host "  powershell -ExecutionPolicy Bypass -File .\deploy\Apply-Ehr1CloudNginxVhost.ps1`n"

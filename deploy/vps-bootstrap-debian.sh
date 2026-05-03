@@ -58,6 +58,11 @@ server {
     root ${DOCROOT};
     index index.php index.html;
 
+    # Apache .htaccess is not used by nginx; mirror site-root rule for clean app URLs.
+    location = /ehr1-data {
+        return 301 /ehr1-data/;
+    }
+
     location / {
         try_files \$uri \$uri/ =404;
     }

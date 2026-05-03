@@ -1,4 +1,4 @@
-$ftpHost = "92.112.189.73"
+$ftpHost = "177.7.52.88"
 $ftpUsername = "u660126262.ehr1.cloud"
 $ftpPassword = "yodApodA911**"
 

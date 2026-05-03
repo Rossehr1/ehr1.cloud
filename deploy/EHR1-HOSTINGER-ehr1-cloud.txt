@@ -126,7 +126,7 @@ Database app note
 -----------------
 - Production config is expected at:
   domains/ehr1.cloud/public_html/ehr1-data/includes/config.local.php
-- **`db.*` in that file** should point at the **authoritative** database (usually **MySQL on the VPS**, e.g. host **177.7.52.88** and database **`ehr1_data`** (or the name you created on the VPS) — see **`ehr1-cloud-app/README-DEPLOY.txt`** *MySQL on VPS*). The Linux hosting username below is **only** for SSH/FTP paths, not the MySQL database name.
+- **`db.*` in that file** should point at the **authoritative** database on the VPS (typically host **`127.0.0.1`** / **`localhost`** when PHP runs on the **same** server as MySQL; the server’s public IP for **DNS / SSH / FTP / curl tests** is **177.7.52.88**). Use database **`ehr1_data`** (or the name you created) — see **`ehr1-cloud-app/README-DEPLOY.txt`** *MySQL on VPS*. The Linux hosting username below is **only** for SSH/FTP paths, not the MySQL database name.
 - Deploy scripts **do not** overwrite `config.local.php` by default.
 
 Copy/paste for live chat / ticket
@@ -136,7 +136,7 @@ Domain: ehr1.cloud
 On-disk web root (FTP/SSH): domains/ehr1.cloud/public_html/
 App: ehr1-data/index.php and includes/config.local.php exist there.
 Problem (current): **DNS is correct** — `nslookup -type=A ehr1.cloud 8.8.8.8` returns
-**92.112.189.73** (and **www** matches). **SCP/SSH** confirms files exist on disk:
+**177.7.52.88** (and **www** matches). **SCP/SSH** confirms files exist on disk:
 `domains/ehr1.cloud/public_html/index.html`, `ehr1-data/ping.txt` (3 bytes),
 `ehr1-data/index.php`, etc. Yet **HTTP** to the same IP with **Host: ehr1.cloud** gives
 **404** for `/ehr1-data/ping.txt` (Hostinger stub HTML, **Last-Modified ~Apr 2025**)
@@ -194,10 +194,10 @@ when DNS is “correct.”
 **E) DNS A record vs SSH host**
 
 In **deploy/deploy-paths.json**, `RemoteHost` (SSH) and `PublicDnsARecordIPv4`
-are both **92.112.189.73** for this project: set the DNS **A** records for **@** and
+are both **177.7.52.88** for this project: set the DNS **A** records for **@** and
 **www** to that IPv4 when hPanel shows it as this website’s address (Hostinger sometimes
 issued a different regional edge IP first — if **curl** with that IP gave TLS
-“unrecognized name,” aligning DNS with **92.112.189.73** matches the node you use for
+“unrecognized name,” aligning DNS with **177.7.52.88** matches the node you use for
 SCP/SSH). After propagation, re-run **Let’s Encrypt** for **ehr1.cloud** if HTTPS
 still fails.
 
@@ -208,15 +208,15 @@ are active on that node. Files stay under **domains/ehr1.cloud/public_html/** re
 Verified failure after successful deploy (2026-05)
 ----------------------------------------------------
 Symptoms: **Deploy scripts succeed** (files visible in File Manager / SSH), **DNS A**
-points at **92.112.189.73**, but **https://ehr1.cloud/ehr1-data/ping.txt** or **index.php**
+points at **177.7.52.88**, but **https://ehr1.cloud/ehr1-data/ping.txt** or **index.php**
 still show **404** / Hostinger placeholder.
 
 **Proof from any PC:**
 
   nslookup -type=A ehr1.cloud 8.8.8.8
-  curl -sSI -H "Host: ehr1.cloud" "http://92.112.189.73/ehr1-data/ping.txt"
+  curl -sSI -H "Host: ehr1.cloud" "http://177.7.52.88/ehr1-data/ping.txt"
 
-If the first shows **Address: 92.112.189.73** and the second is **HTTP/1.1 404** with
+If the first shows **Address: 177.7.52.88** and the second is **HTTP/1.1 404** with
 **Last-Modified: Tue, 22 Apr 2025** (stub page), the web server **ignores** your on-disk
 `public_html` for that hostname. **No further upload or repo change fixes it** — only
 hPanel / Hostinger support correcting **website assignment** (or use the **subdomain**

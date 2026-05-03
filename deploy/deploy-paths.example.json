@@ -1,6 +1,6 @@
 {
-  "RemoteHost": "203.0.113.10",
-  "PublicDnsARecordIPv4": "203.0.113.10",
+  "RemoteHost": "177.7.52.88",
+  "PublicDnsARecordIPv4": "177.7.52.88",
   "Port": 22,
   "User": "root",
   "ActiveDeployProfile": "ehr1.cloud",

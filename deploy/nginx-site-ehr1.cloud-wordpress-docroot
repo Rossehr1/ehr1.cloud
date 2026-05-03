@@ -1,7 +1,8 @@
 # Install on VPS as:  /etc/nginx/sites-available/ehr1.cloud
 #
 #   sudo cp nginx-site-ehr1.cloud-wordpress-docroot /etc/nginx/sites-available/ehr1.cloud
-#   sudo ln -sf /etc/nginx/sites-available/ehr1.cloud /etc/nginx/sites-enabled/ehr1.cloud
+# Enable (Hostinger nginx uses include sites-enabled/*.conf — symlink name must end in .conf):
+#   sudo ln -sf /etc/nginx/sites-available/ehr1.cloud /etc/nginx/sites-enabled/ehr1.cloud.conf
 #   sudo nginx -t && sudo systemctl reload nginx
 #
 # server_name and root match a typical Hostinger VPS WordPress tree. If your htdocs path

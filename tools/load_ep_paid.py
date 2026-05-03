@@ -231,7 +231,7 @@ def load_ep_paid(
         if len(pending_ins) >= batch_size or len(pending_arc) >= batch_size:
             with conn.cursor() as cur:
                 if pending_ins:
-                    _batch_insert(cur, "supplemental_ep_paid", insert_cols, pending_ins)
+                    _batch_insert(cur, "supplemental_ep_paid", insert_cols, pending_ins, upsert=True)
                 if pending_arc:
                     _flush_archive(cur, pending_arc, archive_cols)
             conn.commit()
@@ -242,7 +242,7 @@ def load_ep_paid(
     if pending_ins or pending_arc:
         with conn.cursor() as cur:
             if pending_ins:
-                _batch_insert(cur, "supplemental_ep_paid", insert_cols, pending_ins)
+                _batch_insert(cur, "supplemental_ep_paid", insert_cols, pending_ins, upsert=True)
             _flush_archive(cur, pending_arc, archive_cols)
         conn.commit()
 

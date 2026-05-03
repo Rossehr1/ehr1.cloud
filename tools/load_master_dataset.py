@@ -72,11 +72,11 @@ PROVIDER_MAP = {
     "Authorized Official Telephone Number": "authorized_official_phone",
     "Healthcare Provider Taxonomy Code_1": "healthcare_provider_taxonomy_code_1",
     "Provider License Number_1": "provider_license_number_1",
-    "Provider License Number State Code_1": "provider_license_number_state_code_1",
+    "Provider License Number State Code_1": "provider_license_number_state_1",
     "Healthcare Provider Primary Taxonomy Switch_1": "healthcare_provider_primary_taxonomy_switch_1",
     "Healthcare Provider Taxonomy Code_2": "healthcare_provider_taxonomy_code_2",
     "Provider License Number_2": "provider_license_number_2",
-    "Provider License Number State Code_2": "provider_license_number_state_code_2",
+    "Provider License Number State Code_2": "provider_license_number_state_2",
     "Healthcare Provider Primary Taxonomy Switch_2": "healthcare_provider_primary_taxonomy_switch_2",
 }
 
@@ -182,9 +182,15 @@ def _create_batch(cur: Any, source_key: str, path: Path, notes: str) -> int:
 
 
 def _find_latest_csv(data_dir: Path, glob_pattern: str, label: str) -> Path:
-    paths = sorted(data_dir.glob(glob_pattern))
+    """Pick the lexicographically latest path matching the glob, excluding CMS *_fileheader.csv stubs."""
+    paths = [
+        p
+        for p in data_dir.glob(glob_pattern)
+        if p.is_file() and "fileheader" not in p.name.lower()
+    ]
     if not paths:
         raise FileNotFoundError(f"{label}: no file matching {glob_pattern!r} under {data_dir}")
+    paths.sort()
     chosen = paths[-1]
     if len(paths) > 1:
         print(f"{label}: using last of {len(paths)} matches: {chosen.name}", flush=True)

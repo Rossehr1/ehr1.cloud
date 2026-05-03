@@ -15,7 +15,7 @@
 # WordPress multisite: if you need the extra rewrite/if rules from the panel 8080 vhost,
 # copy them from /etc/nginx/sites-enabled/srv1632616.hstgr.cloud.conf into this file.
 #
-# HTTPS: add listen 443 ssl, ssl_certificate, ssl_certificate_key when certs exist.
+# HTTPS: see deploy/https-ehr1.cloud-steps.txt and deploy/nginx-ehr1.cloud-ssl-server.conf.example
 
 server {
   listen 80;

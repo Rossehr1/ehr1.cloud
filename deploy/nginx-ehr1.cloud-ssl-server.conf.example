@@ -1,0 +1,61 @@
+# Paste this second `server { ... }` below the existing port-80 server in
+# /etc/nginx/sites-available/ehr1.cloud AFTER certificates exist.
+#
+# Typical Let's Encrypt paths (adjust if `certbot certificates` shows another path):
+#   ssl_certificate     /etc/letsencrypt/live/ehr1.cloud/fullchain.pem;
+#   ssl_certificate_key /etc/letsencrypt/live/ehr1.cloud/privkey.pem;
+#
+# Then: nginx -t && systemctl reload nginx
+
+server {
+  listen 443 ssl;
+  listen [::]:443 ssl;
+  http2 on;
+  server_name ehr1.cloud www.ehr1.cloud;
+
+  ssl_certificate     /etc/letsencrypt/live/ehr1.cloud/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/ehr1.cloud/privkey.pem;
+
+  root /home/user/htdocs/srv1632616.hstgr.cloud;
+  index index.php index.html;
+
+  access_log /var/log/nginx/ehr1.cloud.ssl.access.log;
+  error_log  /var/log/nginx/ehr1.cloud.ssl.error.log;
+
+  include /etc/nginx/global_settings;
+
+  location = /ehr1-data {
+    return 301 /ehr1-data/;
+  }
+
+  location / {
+    try_files $uri $uri/ /index.php?$args;
+  }
+
+  location ~ \.php$ {
+    include fastcgi_params;
+    fastcgi_intercept_errors on;
+    fastcgi_index index.php;
+    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    try_files $uri =404;
+    fastcgi_read_timeout 3600;
+    fastcgi_send_timeout 3600;
+    fastcgi_param HTTPS "on";
+    fastcgi_param SERVER_PORT 443;
+    fastcgi_pass 127.0.0.1:15001;
+    fastcgi_param PHP_VALUE "error_log=/home/user/logs/php/error.log;
+memory_limit=512M;
+max_execution_time=60;
+max_input_time=60;
+max_input_vars=10000;
+post_max_size=64M;
+upload_max_filesize=64M;
+auto_prepend_file=/home/user/.varnish-cache/controller.php;
+date.timezone=UTC;
+display_errors=off;";
+  }
+
+  location ~ /\.ht {
+    deny all;
+  }
+}

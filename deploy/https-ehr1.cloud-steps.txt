@@ -1,0 +1,74 @@
+Fix HTTPS for ehr1.cloud (WordPress + /ehr1-data)
+===============================================
+
+Problem
+-------
+Nginx serves ehr1.cloud on port 80 only. Port 443 has no certificate for ehr1.cloud,
+so browsers fail TLS while WordPress uses https:// URLs.
+
+Prerequisites
+-------------
+- DNS A records for ehr1.cloud and www.ehr1.cloud point to this VPS (already true).
+- Port 80 reachable from the internet (for Let's Encrypt HTTP-01), unless you use DNS challenge.
+- Backup nginx:  cp -a /etc/nginx/sites-available/ehr1.cloud /root/ehr1.cloud.bak
+
+Option A — Certbot edits nginx (fastest if compatible with your panel)
+----------------------------------------------------------------------
+On the VPS as root:
+
+  apt-get update && apt-get install -y certbot python3-certbot-nginx
+  certbot --nginx -d ehr1.cloud -d www.ehr1.cloud
+
+Follow prompts (email, agree TOS). Certbot should insert ssl_certificate lines into
+your ehr1.cloud server block and reload nginx.
+
+Then test:  curl -sS -o /dev/null -w "%{http_code}\n" https://ehr1.cloud/
+
+If certbot breaks the Hostinger nginx layout, restore from backup and use Option B.
+
+Option B — Certificate only, then paste nginx 443 block
+---------------------------------------------------------
+1) Obtain certs (webroot must match nginx root for challenge):
+
+  apt-get install -y certbot
+  mkdir -p /var/www/certbot
+  certbot certonly --webroot -w /var/www/certbot \
+    -d ehr1.cloud -d www.ehr1.cloud --email YOUR@EMAIL --agree-tos
+
+2) Add a temporary location to the EXISTING port-80 server for ehr1.cloud ONLY:
+
+  location ^~ /.well-known/acme-challenge/ {
+    root /var/www/certbot;
+    default_type "text/plain";
+    allow all;
+  }
+
+   Reload nginx, run certbot again if needed, then append the 443 server from
+   deploy/nginx-ehr1.cloud-ssl-server.conf.example (fix paths if certbot listed
+   a different live directory).
+
+3) Optionally redirect HTTP to HTTPS on port 80:
+
+  return 301 https://$host$request_uri;
+
+   (Place carefully: usually a separate small server block for :80 or the top of
+   the :80 server after ACME is working.)
+
+Option C — Hostinger / panel SSL
+---------------------------------
+If the panel issues certificates and writes them under e.g.
+/etc/nginx/ssl-certificates/ehr1.cloud.crt and .key, use those paths in the 443
+server block instead of /etc/letsencrypt/live/...
+
+PHP / FastCGI on HTTPS
+----------------------
+In the listen 443 server block, use:
+  fastcgi_param HTTPS "on";
+  fastcgi_param SERVER_PORT 443;
+
+(not empty HTTPS like the port-80 block).
+
+WordPress
+---------
+You already set Site URL to https://ehr1.cloud — after HTTPS works, visit
+/wp-admin and clear caches if any.
